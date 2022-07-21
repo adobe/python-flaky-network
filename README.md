@@ -1,2 +1,6 @@
-# flaky-network
-python library for simulating flaky network scenarios like bandwidth throttling, ping variation, jitter, etc. This will support all platforms, like macOS, win, iOS, etc. Currently we have added support for mac only.
+# flakynetwork
+First Version supported only on macOS
+
+
+Install using 
+python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps flakynetworksimulator
