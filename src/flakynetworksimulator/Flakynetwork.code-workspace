@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../test_fn"
+		},
+		{
+			"path": "../../../../acp-local-test/acpltestapps/sdk/PythonScripts/src"
+		}
+	],
+	"settings": {}
+}
