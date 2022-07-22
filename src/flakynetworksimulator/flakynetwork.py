@@ -301,7 +301,7 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
                 subprocess.run("dnctl pipe 2 config delay 0ms noerror",shell=True)
-                subprocess.run(" echo 'dummynet in proto {tcp,icmp} from 172.217.34.194 to any pipe 1 \ndummynet out proto {tcp,icmp} from any to 172.217.34.194 pipe 2' | sudo pfctl -f -", shell=True,stdout=outfile, stderr=subprocess.STDOUT)
+                subprocess.run(" echo 'dummynet in proto {tcp,icmp} from 127.0.0.1 to any pipe 1 \ndummynet out proto {tcp,icmp} from any to 127.0.0.1 pipe 2' | sudo pfctl -f -", shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
                 while(True):
                     p = (random.randint(ping -a,ping+a)) // 2
