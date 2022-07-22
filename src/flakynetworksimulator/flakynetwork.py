@@ -271,6 +271,7 @@ class FlakyNetwork:
             down = self.downspeed
             ping = self.ping
             dropout = self.dropout
+            tout = 120
             timeout = time() + tout
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
@@ -294,24 +295,26 @@ class FlakyNetwork:
             up = self.upspeed
             down = self.downspeed
             ping = self.ping
-            dropout = self.dropout
+            dropout = 0
             tout = 120
             timeout = time() + tout
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
-                subprocess.run(" echo 'dummynet in proto {tcp,icmp} from" + " {dns} to any pipe 1' | sudo pfctl -f -".format(dns=self.dns), shell=True,stdout=outfile, stderr=subprocess.STDOUT)
+                subprocess.run("dnctl pipe 2 config delay 0ms noerror",shell=True)
+                subprocess.run(" echo 'dummynet in proto {tcp,icmp} from 172.217.34.194 to any pipe 1 \ndummynet out proto {tcp,icmp} from any to 172.217.34.194 pipe 2' | sudo pfctl -f -", shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
                 while(True):
                     p = (random.randint(ping -a,ping+a)) // 2
                     u = random.randint(up - up_a, up + up_a)
                     # d = random.randint(down - down_a, down + down_a)
-                    subprocess.run(self.__pipeConfig(1,u,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    subprocess.run(self.__pipeConfig(1,100000,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    subprocess.run(self.__pipeConfig(2,100000,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                     sleep(2)
                     if time() > timeout:
                         break                        
         except Exception as e:
             with open(cwd +'/py_flaky.log',"a") as outfile:
-                outfile.write(e)
+                outfile.write(str(e))
             print("Error check logs")
 
     def __jitter(self,jittervalue, bwJitter, tout):
