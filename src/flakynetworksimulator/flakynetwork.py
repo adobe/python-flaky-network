@@ -25,7 +25,7 @@ TIMER = 3
 DEBUG_MODE = False
 TOUT = 120
 JITTERVALUE = 10
-BWJITTER=100
+bw_dev=100
 
 # profiles
 profiles = {
@@ -274,7 +274,6 @@ class FlakyNetwork:
         self.downspeed = profiles.get(p)[1]
         self.dropout = DROPOUT
         self.ping = profiles.get(p)[2]
-
     def __random(self,up_a=50,down_a=50,a = 50):
         try:
             cwd = self.cwd
@@ -328,7 +327,7 @@ class FlakyNetwork:
                 outfile.write(str(e))
             print("Error check logs")
 
-    def __jitter(self,jittervalue, bwJitter, tout):
+    def __jitter(self,jittervalue, bw_dev, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
@@ -342,7 +341,7 @@ class FlakyNetwork:
                     subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
                     while(True):
                         p= random.normalvariate(ping,jittervalue)
-                        u = random.normalvariate(up,bwJitter)
+                        u = random.normalvariate(up,bw_dev)
                         subprocess.run(self.__pipeConfig(1,u,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                         subprocess.run(self.__pipeConfig(2,u,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                         sleep(1)
@@ -353,7 +352,7 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")   
-    def __jitterTest(self, jittervalue, bwjitter, tout):
+    def __jitterTest(self, jittervalue, bw_dev, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
@@ -389,10 +388,10 @@ class FlakyNetwork:
     def randomBandwidth(self,bw_var = BANDWIDTH_VAR,tout=TIMER):
         self.__variableBandwidth(var=bw_var,tout = tout)
 
-    def networkSwitch(self,switch_profile = SWITCH_PROFILE):
-        self.__switch()
+    def networkSwitch(self,switch_profile = SWITCH_PROFILE, tout = TIMER):
+        self.__switch(switch_profile=switch_profile, tout=tout)
 
-    def start(self, mode=DEFAULT_MODE,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE,bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bwJitter=BWJITTER,tout=TOUT):
+    def start(self, mode=DEFAULT_MODE,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE,bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bw_dev=bw_dev,tout=TOUT):
         # signal.alarm(self.timeout)
         if(mode==0):
             self.__throttle()
@@ -401,11 +400,11 @@ class FlakyNetwork:
         elif(mode==2):
             self.__switch(switches=switches,timer=timer,SWITCH_PROFILE=SWITCH_PROFILE)
         elif(mode==3):
-            self.__jitter(jittervalue,bwJitter,tout)
+            self.__jitter(jittervalue,bw_dev,tout)
         else:
             print("Mode can only be 0,1,2 or 3")
     
-    def test(self, mode=3,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE, bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bwJitter=BWJITTER,tout=TOUT):
+    def test(self, mode=3,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE, bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bw_dev=bw_dev,tout=TOUT):
         # signal.alarm(self.timeout)
 
         if(mode==0):
@@ -415,7 +414,7 @@ class FlakyNetwork:
         elif(mode==2):
             self.__switchTest(switches=switches,timer=timer,SWITCH_PROFILE=SWITCH_PROFILE)
         elif(mode==3):
-            self.__jitterTest(jittervalue,bwJitter,tout)
+            self.__jitterTest(jittervalue,bw_dev,tout)
         elif(mode==4):
             self.__randomTest()
         else:
