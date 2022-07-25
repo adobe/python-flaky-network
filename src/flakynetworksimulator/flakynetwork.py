@@ -162,7 +162,7 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")
-    def __variableBandwidth(self, var):
+    def __variableBandwidth(self, var, tout = TIMER):
         
         try:
             cwd = self.cwd
@@ -179,10 +179,14 @@ class FlakyNetwork:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
                 subprocess.run(" echo 'dummynet in proto {tcp,icmp} from" + " {dns} to any pipe 1' | sudo pfctl -f -".format(dns=self.dns), shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
-                for i in range(5):
+                timeout = time() + tout
+                while(True):
                     bw = random.randint(low_up,high_up)
                     subprocess.run(self.__pipeConfig(1,bw,ping,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                     sleep(2)
+                    if(time() > timeout):
+                        break
+            
         except Exception as e:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
@@ -362,6 +366,21 @@ class FlakyNetwork:
 
         except:
             print("Error in jitter check logs")
+
+
+    def throttle(self,tout = TIMER):
+        timeout = time() + tout
+        self.__throttle()
+        while(True):
+            
+            if time()  > timeout:
+             break
+            sleep(10)
+        
+        return 0
+
+    def randomBandwidth(self,bw_var = BANDWIDTH_VAR,tout=TIMER):
+        self.__variableBandwidth(var=bw_var,tout = tout)
 
 
     def start(self, mode=DEFAULT_MODE,wifi_profile=WIFI_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE,bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bwJitter=BWJITTER,tout=TOUT):
