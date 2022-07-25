@@ -65,3 +65,35 @@ This repository is used to maintain the *flakynetworksimulator* package hosted o
 |DEBUG_MODE | `False`
 |TOUT | `120`
 |JITTERVALUE | `10`
+## Tech Stack
+
+| MacOS | Windows | Linux
+|--|--|--|
+|Python | Python | Python
+||C++| 
+
+*Note: Currently python version is in production, windows is in progress and support for linux can be extended if required*
+
+## Normal Variate Profile
+![Normal variate Bandwidth](imglink.here)
+![Normally Distributed Ping](imglink.here)
+
+## Testing Locally
+Follow the steps to test the *flaktnetworksimulator* locally by simulating network on localhost
+
+ 1. Create a file `run.py`
+ 2. Paste the following code for quickstart
+
+    import  flakynetworksimulator.flakynetwork  as  f
+    from time import sleep
+    fn = f.FlakyNetwork()
+    fn.test(mode = 0)
+    sleep(10)
+    fn.stop()
+    
+
+ 3. Open a 2 terminals
+ 4. Run `ping 127.0.0.1` on terminal 1 and `sudo python3 run.py` in terminal 2
+ 5. Replace `fn.test()` with testing functions
+ > Test functions are same as legacy function, just add Test to the function name 
+ > For eg. `throttle()` has test function named `thorttleTest()`
