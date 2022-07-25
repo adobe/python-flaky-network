@@ -12,7 +12,7 @@ from time import time
 import signal
 
 
-WIFI_PROFILE = "lte"
+SWITCH_PROFILE = "lte"
 MOBILE_DATA = "4g"
 TEST_DNS = "127.0.0.1"
 PING_DNS = "8.8.8.8"
@@ -129,17 +129,17 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")
-    def __switch(self, wifi_profile, switches , timer, debug):
+    def __switch(self, SWITCH_PROFILE, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             down = self.downspeed
             ping = self.ping
             dropout = self.dropout
-            up_wifi = profiles.get(wifi_profile)[0]
-            ping_wifi = profiles.get(wifi_profile)[1]
-            dropout_wifi = profiles.get(wifi_profile)[3]
-            down_wifi = profiles.get(wifi_profile)[2]
+            up_wifi = profiles.get(SWITCH_PROFILE)[0]
+            ping_wifi = profiles.get(SWITCH_PROFILE)[1]
+            dropout_wifi = profiles.get(SWITCH_PROFILE)[3]
+            down_wifi = profiles.get(SWITCH_PROFILE)[2]
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run("dnctl pipe 2 config delay 0ms noerror",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
@@ -149,15 +149,19 @@ class FlakyNetwork:
                 subprocess.run(self.__pipeConfig(2,down,ping,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                 subprocess.run("pfctl -E",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 # switch starts-
-                for i in range(switches):
+                timeout = time() + tout
+                while(True):
                     # Switching to wifi
                     subprocess.run(self.__pipeConfig(1,up_wifi,ping_wifi,dropout_wifi),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                     subprocess.run(self.__pipeConfig(2,down_wifi,ping_wifi,dropout_wifi),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
-                    sleep(timer)
+                    sleep(2)
                     # Switching to mobile data
                     subprocess.run(self.__pipeConfig(1,up,ping,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                     subprocess.run(self.__pipeConfig(2,down,ping,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
-                    sleep(timer)
+                    sleep(2)
+                    if time() > timeout:
+                        break
+
         except Exception as e:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
@@ -205,29 +209,32 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")
-    def __switchTest(self, wifi_profile, switches , timer, debug = False):
+    def __switchTest(self, SWITCH_PROFILE, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             ping = self.ping
             dropout = self.dropout
             # Wifi profile
-            up_wifi = profiles.get(wifi_profile)[0]
-            ping_wifi = profiles.get(wifi_profile)[1]
-            dropout_wifi = profiles.get(wifi_profile)[3]
+            up_wifi = profiles.get(SWITCH_PROFILE)[0]
+            ping_wifi = profiles.get(SWITCH_PROFILE)[1]
+            dropout_wifi = profiles.get(SWITCH_PROFILE)[3]
 
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run(["dnctl" ,"pipe", "1", "config", "bw", "{up}Kbit/s".format(up=up), "delay" , "{ping}".format(ping=ping), "plr", "{dropout}".format(dropout=dropout), "noerror"], stdout=outfile,stderr=subprocess.STDOUT) 
                 subprocess.run(" echo 'dummynet in proto {tcp,icmp} from" + " {dns} to any pipe 1' | sudo pfctl -f -".format(dns=self.dns), shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
                 # start switching
-                for i in range(switches):
+                timeout = time() + tout
+                while(True):
                     print("wifi")
                     subprocess.run(self.__pipeConfig(1,up_wifi,ping_wifi,dropout_wifi),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
-                    sleep(timer)
+                    sleep(2)
                     print("mobile data")
                     subprocess.run(self.__pipeConfig(1,up,ping,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
-                    sleep(timer)    
+                    sleep(2)  
+                    if time() > timeout:
+                        break  
         except Exception as e:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
@@ -382,21 +389,23 @@ class FlakyNetwork:
     def randomBandwidth(self,bw_var = BANDWIDTH_VAR,tout=TIMER):
         self.__variableBandwidth(var=bw_var,tout = tout)
 
+    def networkSwitch(self,switch_profile = SWITCH_PROFILE):
+        self.__switch()
 
-    def start(self, mode=DEFAULT_MODE,wifi_profile=WIFI_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE,bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bwJitter=BWJITTER,tout=TOUT):
+    def start(self, mode=DEFAULT_MODE,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE,bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bwJitter=BWJITTER,tout=TOUT):
         # signal.alarm(self.timeout)
         if(mode==0):
             self.__throttle()
         elif(mode==1):
             self.__variableBandwidth(var=bw_var)
         elif(mode==2):
-            self.__switch(switches=switches,timer=timer,wifi_profile=wifi_profile)
+            self.__switch(switches=switches,timer=timer,SWITCH_PROFILE=SWITCH_PROFILE)
         elif(mode==3):
             self.__jitter(jittervalue,bwJitter,tout)
         else:
             print("Mode can only be 0,1,2 or 3")
     
-    def test(self, mode=3,wifi_profile=WIFI_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE, bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bwJitter=BWJITTER,tout=TOUT):
+    def test(self, mode=3,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE, bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bwJitter=BWJITTER,tout=TOUT):
         # signal.alarm(self.timeout)
 
         if(mode==0):
@@ -404,7 +413,7 @@ class FlakyNetwork:
         elif(mode==1):
             self.__variableBandwitdhTest(var=bw_var)
         elif(mode==2):
-            self.__switchTest(switches=switches,timer=timer,wifi_profile=wifi_profile)
+            self.__switchTest(switches=switches,timer=timer,SWITCH_PROFILE=SWITCH_PROFILE)
         elif(mode==3):
             self.__jitterTest(jittervalue,bwJitter,tout)
         elif(mode==4):
