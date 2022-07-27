@@ -394,18 +394,7 @@ class FlakyNetwork:
     def jitter(self,jittervalue = JITTERVALUE, bw_dev = BW_DEV, tout = TOUT ):
         self.__jitter(jittervalue,bw_dev,tout)
 
-    def start(self, mode=DEFAULT_MODE,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE,bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bw_dev=bw_dev,tout=TOUT):
-        # signal.alarm(self.timeout)
-        if(mode==0):
-            self.__throttle()
-        elif(mode==1):
-            self.__variableBandwidth(var=bw_var)
-        elif(mode==2):
-            self.__switch(switches=switches,timer=timer,SWITCH_PROFILE=SWITCH_PROFILE)
-        elif(mode==3):
-            self.__jitter(jittervalue,bw_dev,tout)
-        else:
-            print("Mode can only be 0,1,2 or 3")
+
     
     def test(self, mode=3,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE, bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bw_dev=bw_dev,tout=TOUT):
         # signal.alarm(self.timeout)
