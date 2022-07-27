@@ -25,7 +25,7 @@ TIMER = 3
 DEBUG_MODE = False
 TOUT = 120
 JITTERVALUE = 10
-bw_dev=100
+BW_DEV=100
 
 # profiles
 profiles = {
@@ -390,6 +390,9 @@ class FlakyNetwork:
 
     def networkSwitch(self,switch_profile = SWITCH_PROFILE, tout = TIMER):
         self.__switch(switch_profile=switch_profile, tout=tout)
+
+    def jitter(self,jittervalue = JITTERVALUE, bw_dev = BW_DEV, tout = TOUT ):
+        self.__jitter(jittervalue,bw_dev,tout)
 
     def start(self, mode=DEFAULT_MODE,SWITCH_PROFILE=SWITCH_PROFILE, switches = SWITCHES, timer = TIMER, debug = DEBUG_MODE,bw_var = BANDWIDTH_VAR, jittervalue=JITTERVALUE,bw_dev=bw_dev,tout=TOUT):
         # signal.alarm(self.timeout)
