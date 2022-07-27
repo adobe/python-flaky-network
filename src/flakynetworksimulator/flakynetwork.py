@@ -394,6 +394,8 @@ class FlakyNetwork:
     def jitter(self,jittervalue = JITTERVALUE, bw_dev = BW_DEV, tout = TOUT ):
         self.__jitter(jittervalue,bw_dev,tout)
 
+    def randomProfile(self):
+        pass
 
     def throttleTest(self,tout = TIMER):
         timeout = time() + tout
@@ -415,6 +417,8 @@ class FlakyNetwork:
     def jitterTest(self,jittervalue = JITTERVALUE, bw_dev = BW_DEV, tout = TOUT ):
         self.__jitterTest(jittervalue,bw_dev,tout)
 
+    def randomProfileTest(self):
+        pass
 
 
 # flaky = FlakyNetwork()
