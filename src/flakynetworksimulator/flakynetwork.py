@@ -274,7 +274,7 @@ class FlakyNetwork:
         self.downspeed = profiles.get(p)[1]
         self.dropout = DROPOUT
         self.ping = profiles.get(p)[2]
-    def __random(self,up_a=50,down_a=50,a = 50):
+    def __random(self):
         try:
             cwd = self.cwd
             up = self.upspeed
@@ -289,9 +289,9 @@ class FlakyNetwork:
                 subprocess.run("echo \"dummynet in from any to ! 127.0.0.1 pipe 1 \ndummynet out from !127.0.0.1 to any pipe 2\" | sudo pfctl -f -",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
                 while(True):
-                    p = (random.randint(ping -a,ping+a)) // 2
-                    u = random.randint(up - up_a, up + up_a)
-                    d = random.randint(down - down_a, down + down_a)
+                    p = (random.randint(ping -(ping//2),ping+(ping//2))) // 2
+                    u = random.randint(up - (up//2), up + (up//2))
+                    d = random.randint(down - (down//2), down + (down//2))
                     subprocess.run(self.__pipeConfig(1,u,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                     subprocess.run(self.__pipeConfig(2,d,p ,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                     sleep(2)
@@ -299,7 +299,7 @@ class FlakyNetwork:
                         break                        
         except:
             print("error check logs")
-    def __randomTest(self,up_a=50,down_a=50,a = 50):
+    def __randomTest(self):
         try:
             cwd = self.cwd
             up = self.upspeed
@@ -314,8 +314,8 @@ class FlakyNetwork:
                 subprocess.run(" echo 'dummynet in proto {tcp,icmp} from 127.0.0.1 to any pipe 1 \ndummynet out proto {tcp,icmp} from any to 127.0.0.1 pipe 2' | sudo pfctl -f -", shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
                 while(True):
-                    p = (random.randint(ping -a,ping+a)) // 2
-                    u = random.randint(up - up_a, up + up_a)
+                    p = (random.randint(ping -(ping//2),ping+(ping//2))) // 2
+                    u = random.randint(up - (up//2), up + (up//2))
                     # d = random.randint(down - down_a, down + down_a)
                     subprocess.run(self.__pipeConfig(1,100000,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
                     subprocess.run(self.__pipeConfig(2,100000,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
@@ -395,7 +395,7 @@ class FlakyNetwork:
         self.__jitter(jittervalue,bw_dev,tout)
 
     def randomProfile(self):
-        pass
+        self.__random()
 
     def throttleTest(self,tout = TIMER):
         timeout = time() + tout
@@ -418,7 +418,7 @@ class FlakyNetwork:
         self.__jitterTest(jittervalue,bw_dev,tout)
 
     def randomProfileTest(self):
-        pass
+        self.__randomTest()
 
 
 # flaky = FlakyNetwork()
