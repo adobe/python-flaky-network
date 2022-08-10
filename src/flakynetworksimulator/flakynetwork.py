@@ -373,7 +373,68 @@ class FlakyNetwork:
         except:
             print("Error in jitter check logs")
 
+    def __realLifeSimulation(self, bw_deg, ping_deg):
+        try:
+            cwd = self.cwd
+            up = self.upspeed
+            down = self.downspeed
+            ping = self.ping
+            dropout = self.dropout
+            tout = 120
+            t = 15 + bw_deg*15
+            
+            timeout = time() + tout
+            with open(cwd +'/py_flaky.log',"a") as outfile:
+                subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
+                subprocess.run("dnctl pipe 2 config delay 0ms noerror",shell=True)
+                subprocess.run("echo \"dummynet in from any to ! 127.0.0.1 pipe 1 \ndummynet out from !127.0.0.1 to any pipe 2\" | sudo pfctl -f -",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
+                subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
+                while(True):
+                    p = (random.randint(ping -(ping//2),ping+(ping//2))) // 2
+                    u = random.randint(up - (up//2), up + (up//2))
+                    d = random.randint(down - (down//2), down + (down//2))
+                    subprocess.run(self.__pipeConfig(1,u,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    subprocess.run(self.__pipeConfig(2,d,p ,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    sleep(2)
+                    subprocess.run(self.__pipeConfig(1,up,ping,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    subprocess.run(self.__pipeConfig(2,down,ping ,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    sleep(t)
+                    if time() > timeout:
+                        break                        
+        except:
+            print("error check logs")
 
+    def realLifeSimulationTest(self,bw_deg,ping_deg):
+        try:
+            cwd = self.cwd
+            up = self.upspeed
+            down = self.downspeed
+            ping = self.ping
+            dropout = 0
+            tout = 120
+            t = 15 + bw_deg*15
+            timeout = time() + tout
+            with open(cwd +'/py_flaky.log',"a") as outfile:
+                subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
+                subprocess.run("dnctl pipe 2 config delay 0ms noerror",shell=True)
+                subprocess.run(" echo 'dummynet in proto {tcp,icmp} from 127.0.0.1 to any pipe 1 \ndummynet out proto {tcp,icmp} from any to 127.0.0.1 pipe 2' | sudo pfctl -f -", shell=True,stdout=outfile, stderr=subprocess.STDOUT)
+                subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
+                while(True):
+                    p = (random.randint(ping -(ping//2),ping+(ping//2))) // 2
+                    u = random.randint(up - (up//2), up + (up//2))
+                    # d = random.randint(down - down_a, down + down_a)
+                    subprocess.run(self.__pipeConfig(1,100000,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    subprocess.run(self.__pipeConfig(2,100000,p,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    sleep(2)
+                    subprocess.run(self.__pipeConfig(1,up,ping,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    subprocess.run(self.__pipeConfig(2,down,ping ,dropout),shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                    sleep(t)
+                    if time() > timeout:
+                        break                        
+        except Exception as e:
+            with open(cwd +'/py_flaky.log',"a") as outfile:
+                outfile.write(str(e))
+            print("Error check logs")
     def throttle(self,tout = TIMER):
         timeout = time() + tout
         self.__throttle()
@@ -384,7 +445,7 @@ class FlakyNetwork:
             sleep(10)
         
         return 0
-
+        
     def randomBandwidth(self,bw_var = BANDWIDTH_VAR,tout=TIMER):
         self.__variableBandwidth(var=bw_var,tout = tout)
 
@@ -396,6 +457,9 @@ class FlakyNetwork:
 
     def randomProfile(self):
         self.__random()
+
+    def realLifeSimulation(self, bw_deg  =1, ping_deg = 0):
+        self.__realLifeSimulation(bw_deg, ping_deg)
 
     def throttleTest(self,tout = TIMER):
         timeout = time() + tout
@@ -419,6 +483,6 @@ class FlakyNetwork:
 
     def randomProfileTest(self):
         self.__randomTest()
-
+    
 
 # flaky = FlakyNetwork()
