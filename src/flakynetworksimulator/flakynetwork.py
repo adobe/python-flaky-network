@@ -10,6 +10,7 @@ from time import sleep
 import os
 from time import time
 import signal
+from math import sqrt
 
 
 SWITCH_PROFILE = "lte"
@@ -108,7 +109,7 @@ class FlakyNetwork:
         try:
             return "dnctl pipe {pipe} config bw {speed}Kbits/s delay {ping}ms plr {dropout}".format(speed=speed, pipe = pipe,ping = ping,dropout = dropout)
         except Exception as e:
-            with open(cwd +'/py_flaky.log',"a") as outfile:
+            with open(os.getcwd() +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")
     def pipeConfig(self,pipe,speed,ping,dropout):
@@ -403,6 +404,37 @@ class FlakyNetwork:
                         break                        
         except:
             print("error check logs")
+    def __dropoutSimulator(self, dropout):
+        try:
+            cwd = self.cwd
+            dropout = 1 - sqrt(1-self.dropout) # to get individual dropout for pipe
+            with open(cwd +'/py_flaky.log',"a") as outfile:
+                subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
+                subprocess.run("dnctl pipe 2 config delay 0ms noerror",shell=True)
+                subprocess.run("echo \"dummynet in from any to ! 127.0.0.1 pipe 1 \ndummynet out from !127.0.0.1 to any pipe 2\" | sudo pfctl -f -",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
+                subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
+                subprocess.run(f"dnctl pipe 1 config plr {dropout}",shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+                subprocess.run(f"dnctl pipe 2 config plr {dropout}",shell=True,stdout=outfile,stderr=subprocess.STDOUT)  
+
+        except Exception as e:
+            with open(cwd +'/py_flaky.log',"a") as outfile:
+                outfile.write(str(e))
+            print("error check logs")
+        
+    def __dropoutSimulatorTest(self, dropout):
+        try:
+            cwd = self.cwd
+            dropout = self.dropout
+            with open(cwd +'/py_flaky.log',"a") as outfile:
+                subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
+                subprocess.run(" echo 'dummynet in proto {tcp,icmp} from" + " {dns} to any pipe 1' | sudo pfctl -f -".format(dns=self.dns), shell=True,stdout=outfile, stderr=subprocess.STDOUT)
+                subprocess.run(["pfctl", "-e"], stdout=outfile,stderr=subprocess.STDOUT)
+                subprocess.run(f"dnctl pipe 1 config plr {dropout}",shell=True,stdout=outfile,stderr=subprocess.STDOUT)
+
+        except Exception as e:
+            with open(cwd +'/py_flaky.log',"a") as outfile:
+                outfile.write(str(e))
+            print("error check logs")
 
     def realLifeSimulationTest(self,bw_deg,ping_deg):
         try:
@@ -461,6 +493,24 @@ class FlakyNetwork:
     def realLifeSimulation(self, bw_deg  =1, ping_deg = 0):
         self.__realLifeSimulation(bw_deg, ping_deg)
 
+    def dropout(self, dropout, tout):
+        timeout = time() + tout
+        self.__dropoutSimulator(dropout)
+        while(True):
+            
+            if time()  > timeout:
+             break
+            sleep(10)
+    
+    def dropoutTest(self, dropout,tout):
+        timeout = time() + tout
+        self.__dropoutSimulatorTest(dropout)
+        while(True):
+            
+            if time()  > timeout:
+             break
+            sleep(10)
+            
     def throttleTest(self,tout = TIMER):
         timeout = time() + tout
         self.__throttleTest()
