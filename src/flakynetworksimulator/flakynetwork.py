@@ -493,7 +493,7 @@ class FlakyNetwork:
     def realLifeSimulation(self, bw_deg  =1, ping_deg = 0):
         self.__realLifeSimulation(bw_deg, ping_deg)
 
-    def dropout(self, dropout, tout):
+    def dropoutSim(self, dropout, tout):
         timeout = time() + tout
         self.__dropoutSimulator(dropout)
         while(True):
@@ -510,7 +510,7 @@ class FlakyNetwork:
             if time()  > timeout:
              break
             sleep(10)
-            
+
     def throttleTest(self,tout = TIMER):
         timeout = time() + tout
         self.__throttleTest()
