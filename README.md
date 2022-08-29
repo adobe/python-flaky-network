@@ -2,7 +2,13 @@
 
 This repository is used to maintain the *flakynetworksimulator* package hosted on pypip.org.
 > Version 0.0.3
+
 # Problem Statement
+
+```
+There wasn't any technique to simulate real-life network conditions while testing a particular sync API. It is often observed that app crashes if there are frequent network drops or bad network conditions. The challenge faced by our team was that there didn't exist any textbook application to simulate actual life network conditions, like when we are traveling or when we are at home, but there are frequent switches between wifi and Mobile Data. 
+```
+
 # Installation
 
 ### Inside Adobe
@@ -97,3 +103,11 @@ Follow the steps to test the *flaktnetworksimulator* locally by simulating netwo
  5. Replace `fn.test()` with testing functions
  > Test functions are same as legacy function, just add Test to the function name 
  > For eg. `throttle()` has test function named `thorttleTest()`
+
+# Contributing
+
+Contributions are welcomed! Read the [Contributing Guide](https://git.corp.adobe.com/ACPLocal/flaky-network/blob/main/CONTRIBUTING.md) for more information.
+
+# Licensing
+
+This project is licensed under the MIT License. See [LICENSE](https://git.corp.adobe.com/ACPLocal/flaky-network/blob/main/LICENSE) for more information.
