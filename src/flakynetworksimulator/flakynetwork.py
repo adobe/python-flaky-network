@@ -1,4 +1,7 @@
 """
+Copyright 2022 Adobe 
+All Rights Reserved.
+
 Created by Gauransh Soni on 27th June
 Simulation of Variable real life bandwidth situation
 
