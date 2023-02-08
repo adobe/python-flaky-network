@@ -88,6 +88,7 @@ class FlakyNetwork:
 
                 subprocess.run(["pfctl" ,"-f" ,"/etc/pf.conf"],stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run(["dnctl", "-q", "flush"],stdout=outfile, stderr=subprocess.STDOUT)
+                subprocess.run(["pfctl -d"],shell=True,stdout=outfile, stderr=subprocess.STDOUT)
         except Exception as e:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
@@ -133,17 +134,17 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")
-    def __switch(self, SWITCH_PROFILE, tout):
+    def __switch(self, switch_profile, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             down = self.downspeed
             ping = self.ping
             dropout = self.dropout
-            up_wifi = profiles.get(SWITCH_PROFILE)[0]
-            ping_wifi = profiles.get(SWITCH_PROFILE)[1]
-            dropout_wifi = profiles.get(SWITCH_PROFILE)[3]
-            down_wifi = profiles.get(SWITCH_PROFILE)[2]
+            up_wifi = profiles.get(switch_profile)[0]
+            ping_wifi = profiles.get(switch_profile)[2]
+            dropout_wifi = profiles.get(switch_profile)[3]
+            down_wifi = profiles.get(switch_profile)[1]
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
                 subprocess.run("dnctl pipe 2 config delay 0ms noerror",shell=True,stdout=outfile, stderr=subprocess.STDOUT)
@@ -170,7 +171,7 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")
-    def __variableBandwidth(self, var, tout = TIMER):
+    def __variableBandwidth(self, var, tout):
         
         try:
             cwd = self.cwd
@@ -213,16 +214,16 @@ class FlakyNetwork:
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 outfile.write(e)
             print("Error check logs")
-    def __switchTest(self, SWITCH_PROFILE, tout):
+    def __switchTest(self, switch_profile, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             ping = self.ping
             dropout = self.dropout
             # Wifi profile
-            up_wifi = profiles.get(SWITCH_PROFILE)[0]
-            ping_wifi = profiles.get(SWITCH_PROFILE)[1]
-            dropout_wifi = profiles.get(SWITCH_PROFILE)[3]
+            up_wifi = profiles.get(switch_profile)[0]
+            ping_wifi = profiles.get(switch_profile)[2]
+            dropout_wifi = profiles.get(switch_profile)[3]
 
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run(["dnctl" ,"pipe", "1", "config", "bw", "{up}Kbit/s".format(up=up), "delay" , "{ping}".format(ping=ping), "plr", "{dropout}".format(dropout=dropout), "noerror"], stdout=outfile,stderr=subprocess.STDOUT) 
@@ -278,14 +279,13 @@ class FlakyNetwork:
         self.downspeed = profiles.get(p)[1]
         self.dropout = DROPOUT
         self.ping = profiles.get(p)[2]
-    def __random(self):
+    def __random(self, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             down = self.downspeed
             ping = self.ping
             dropout = self.dropout
-            tout = 120
             timeout = time() + tout
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
@@ -303,14 +303,13 @@ class FlakyNetwork:
                         break                        
         except:
             print("error check logs")
-    def __randomTest(self):
+    def __randomTest(self, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             down = self.downspeed
             ping = self.ping
-            dropout = 0
-            tout = 120
+            dropout = self.dropout
             timeout = time() + tout
             with open(cwd +'/py_flaky.log',"a") as outfile:
                 subprocess.run("dnctl pipe 1 config delay 0ms noerror",shell=True)
@@ -377,14 +376,13 @@ class FlakyNetwork:
         except:
             print("Error in jitter check logs")
 
-    def __realLifeSimulation(self, bw_deg, ping_deg):
+    def __realLifeSimulation(self, bw_deg, ping_deg, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             down = self.downspeed
             ping = self.ping
             dropout = self.dropout
-            tout = 120
             t = 15 + bw_deg*15
             
             timeout = time() + tout
@@ -439,14 +437,13 @@ class FlakyNetwork:
                 outfile.write(str(e))
             print("error check logs")
 
-    def realLifeSimulationTest(self,bw_deg,ping_deg):
+    def realLifeSimulationTest(self,bw_deg,ping_deg, tout):
         try:
             cwd = self.cwd
             up = self.upspeed
             down = self.downspeed
             ping = self.ping
             dropout = 0
-            tout = 120
             t = 15 + bw_deg*15
             timeout = time() + tout
             with open(cwd +'/py_flaky.log',"a") as outfile:
@@ -485,18 +482,18 @@ class FlakyNetwork:
         self.__variableBandwidth(var=bw_var,tout = tout)
 
     def networkSwitch(self,switch_profile = SWITCH_PROFILE, tout = TIMER):
-        self.__switch(switch_profile=switch_profile, tout=tout)
+        self.__switch(switch_profile, tout)
 
-    def jitter(self,jittervalue = JITTERVALUE, bw_dev = BW_DEV, tout = TOUT ):
-        self.__jitter(jittervalue,bw_dev,tout)
+    def jitter(self,jittervalue = JITTERVALUE, bw_dev = BW_DEV, tout = TIMER):
+        self.__jitter(jittervalue, bw_dev, tout)
 
-    def randomProfile(self):
-        self.__random()
+    def randomProfile(self, tout):
+        self.__random(tout)
 
-    def realLifeSimulation(self, bw_deg  =1, ping_deg = 0):
-        self.__realLifeSimulation(bw_deg, ping_deg)
+    def realLifeSimulation(self, bw_deg = 1, ping_deg = 0, tout = TIMER):
+        self.__realLifeSimulation(bw_deg, ping_deg, tout)
 
-    def dropoutSim(self, dropout, tout):
+    def dropoutSim(self, dropout, tout = TIMER):
         timeout = time() + tout
         self.__dropoutSimulator(dropout)
         while(True):
