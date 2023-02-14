@@ -1,6 +1,7 @@
 """
-Copyright 2022 Adobe 
-All Rights Reserved.
+Copyright 2022 Adobe. All rights reserved.
+This file is licensed to you under the MIT licenses;
+you may not use this file except in compliance with the License.
 
 Created by Gauransh Soni on 27th June
 Simulation of Variable real life bandwidth situation
