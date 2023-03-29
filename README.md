@@ -11,13 +11,6 @@ There wasn't any technique to simulate real-life network conditions while testin
 
 # Installation
 
-### Inside Adobe
-
-    pip3 install https://git.corp.adobe.com/ACPLocal/flaky-network/tree/main/dist/flakynetworksimulator-0.0.3-py3-none-any.whl
-  *You need VPN to install using above command* 
-
-### Install from Pypip (Not functional as of now)
-
     pip3 install flakynetworksimulator
 
   
