@@ -73,7 +73,7 @@ We observed the need to create a technique/tool to simulate real-life network co
 |Python | Python | Python
 ||C++| 
 
-*Note: Currently python version is in production, windows is in progress and support for linux can be extended if required*
+*Note: Currently MacOS(python) version is in production, windows is in progress and support for linux can be extended if required*
 
 ## Normal Variate Profile
 ![Normal variate Bandwidth](imglink.here)
