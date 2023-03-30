@@ -49,6 +49,8 @@ We observed the need to create a technique/tool to simulate real-life network co
 | `drops()` | dropout | Random network drop offs (% wise)
 | `realWorldSimulation()` | tout | Simulates a travelling network for a specified time
 
+realWorldSimulation() - Currently we have one profile. We arrived at this profile by travelling from Kota to Delhi on Shatabdi Express. We noted down the network parameters, like ping variation, network drops, jitter, etc. and simulated this through realWorldSimulation().
+
 ## Default Params
 
 |Param| Value  |
