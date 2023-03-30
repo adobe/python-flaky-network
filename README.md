@@ -5,9 +5,9 @@ This repository is used to maintain the *flakynetworksimulator* package hosted o
 
 # Problem Statement
 
-```
-There wasn't any technique to simulate real-life network conditions while testing a particular sync API. It is often observed that app crashes if there are frequent network drops or bad network conditions. The challenge faced by our team was that there didn't exist any textbook application to simulate actual life network conditions, like when we are traveling or when we are at home, but there are frequent switches between wifi and Mobile Data. 
-```
+
+We observed the need to create a technique/tool to simulate real-life network conditions while testing any particular sync API. It is often observed that the app crashes if there are frequent network drops or bad network conditions. The challenge faced by our team was that there didn't exist any textbook application to simulate actual life network conditions, like when we are traveling or when we are at home, but there are frequent switches between wifi and Mobile Data. 
+
 
 # Installation
 
