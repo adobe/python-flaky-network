@@ -1,6 +1,6 @@
 # Flaky Network Simulator
 
-This repository is used to maintain the *flakynetworksimulator* package hosted on pypip.org.
+This repository is used to maintain the Flaky Network Simulator utility.
 > Version 0.0.4
 
 # Problem Statement
@@ -11,13 +11,12 @@ We observed the need to create a technique/tool to simulate real-life network co
 
 # Installation
 
-    pip3 install flakynetworksimulator
-
+    pip install git+https://github.com/adobe/python-flaky-network.git
   
 
 # Quickstart
 
- 1. Install *flakynetworksimulator* package
+ 1. Install the package
  2. Create *run.py* file
  3. Paste the following code in run.py file
 
